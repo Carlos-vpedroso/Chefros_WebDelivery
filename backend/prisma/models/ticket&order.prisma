@@ -1,0 +1,110 @@
+// -----------------------------
+// Vendas e Pedidos
+// -----------------------------
+model Ticket {
+    id         String   @id @default(cuid())
+    businessId String
+    business   Business @relation(fields: [businessId], references: [id])
+
+    // Mesa — pedido pertence a uma mesa (opcional)
+    tableId       String?
+    table         Table?  @relation("TicketAtTable", fields: [tableId], references: [id])
+    activeOnTable Table?  @relation("TableActiveTicket")
+
+    customerId String?
+    customer   Customer? @relation(fields: [customerId], references: [id])
+
+    userId String?
+    user   User?   @relation(fields: [userId], references: [id])
+
+    employeeId String?
+    employee   Employee? @relation(fields: [employeeId], references: [id])
+
+    //Dados do Usuário Anônimo
+    name    String?
+    phone   String?
+    address Json?
+
+    status        TicketStatus   @default(OPEN)
+    totalAmount   Decimal        @db.Decimal(10, 2)
+    paymentMethod PaymentMethod? @default(CASH)
+    orders        Order[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+enum TicketStatus {
+    OPEN
+    CLOSED
+    CANCELLED
+}
+
+model Order {
+    id       String @id @default(cuid())
+    ticketId String
+    ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+    items       OrderItem[]
+    services    OrderService[]
+    status      OrderStatus    @default(PENDING)
+    type        OrderType      @default(COUNTER)
+    totalAmount Decimal        @db.Decimal(10, 2)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+enum OrderType {
+    TABLE // Pedido em mesa
+    COUNTER // PDV / Balcão
+    DELIVERY // Entrega
+    TAKEOUT // Retirada
+    ONLINE // Loja online
+}
+
+model OrderItem {
+    id        String        @id @default(cuid())
+    type      OrderItemType @default(PRODUCT)
+    orderId   String
+    order     Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+    comboId   String?
+    combo     Combo?        @relation(fields: [comboId], references: [id])
+    productId String?
+    product   Product?      @relation(fields: [productId], references: [id])
+    quantity  Int
+    note      String?
+
+    unitPrice Decimal @db.Decimal(10, 2) // preço final unitário
+    subtotal  Decimal @db.Decimal(10, 2)
+
+    // 📌 snapshot da promoção
+    promotionName  String?
+    promotionType  PromotionType?
+    promotionValue Decimal?
+}
+
+enum OrderItemType {
+    PRODUCT
+    COMBO
+}
+
+model OrderService {
+    id        String  @id @default(cuid())
+    orderId   String
+    order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+    serviceId String
+    service   Service @relation(fields: [serviceId], references: [id])
+    quantity  Int
+    note      String?
+    subtotal  Decimal @db.Decimal(10, 2)
+}
+
+enum OrderStatus {
+    PENDING
+    CONFIRMED // EM PREPARO PARA SETOR ALIMENTÍCIO
+    READY
+    OUT_FOR_DELIVERY
+    COMPLETED
+    CANCELLED
+}

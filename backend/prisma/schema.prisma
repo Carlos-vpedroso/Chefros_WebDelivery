@@ -1,0 +1,15 @@
+// =======================================================
+//  CHEFROS PLATFORM - PRISMA SCHEMA (MULTI-SEGMENTO SaaS)
+//  Gestão, Vendas e Automação Inteligente para Negócios
+// =======================================================
+//Get-Content prisma\models\*.prisma | Set-Content prisma\schema.prisma
+//npx prisma generate
+//npx prisma migrate dev --name nomeDaMigration
+//npx prisma db seed
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+}

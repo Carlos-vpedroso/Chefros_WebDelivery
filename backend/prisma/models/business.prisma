@@ -1,0 +1,81 @@
+model Business {
+    id        String          @id @default(cuid())
+    name      String
+    phone     String          @unique
+    slug      String          @unique
+    document  String          @unique // CNPJ/CPF
+    segment   BusinessSegment
+    address   Json // Endereço completo
+    legalName String? // Razão Social
+    email     String?
+    logoUrl   String?
+    bannerUrl String?
+    timezone  String          @default("America/Sao_Paulo")
+    currency  String          @default("BRL")
+    active    Boolean         @default(true)
+
+    stripeCustomerId String? @unique // id do cliente no stripe
+
+    // Relações
+    employees       Employee[]
+    products        Product[]
+    combos          Combo[]
+    promotions      Promotion[]
+    services        Service[]
+    tickets         Ticket[]
+    customers       Customer[]
+    modules         BusinessModule[]
+    subscription    Subscription?
+    activityLogs    ActivityLog[]
+    categories      Category[]
+    tables          Table[]
+    workDays        WorkDays[]
+    loyaltyPrograms LoyaltyProgram[]
+    roles           Role[]
+
+    createdAt        DateTime  @default(now())
+    updatedAt        DateTime  @updatedAt
+    paymentExpiresAt DateTime?
+    deletedAt        DateTime?
+}
+
+enum BusinessSegment {
+    FOOD_INDUSTRY
+    RETAIL //Lojas/Varejo
+    SERVICES
+    AUTOMOTIVE
+    OTHER
+}
+
+// -----------------------------
+// Módulos da Plataforma
+// -----------------------------
+model BusinessModule {
+    id            String     @id @default(cuid())
+    businessId    String
+    business      Business   @relation(fields: [businessId], references: [id], onDelete: Cascade)
+    moduleType    ModuleType
+    active        Boolean    @default(true)
+    activatedAt   DateTime   @default(now())
+    deactivatedAt DateTime?
+    createdAt     DateTime   @default(now())
+    updatedAt     DateTime   @updatedAt
+
+    @@unique([businessId, moduleType])
+    @@index([businessId, moduleType])
+}
+
+enum ModuleType {
+    // Nivel 1
+    SALES_PDV // Chefros Sales
+    ONLINE_STORE // Loja Online
+    // Nivel 2 
+    DELIVERY // Entregas
+    BUSINESS_INTEL // Chefros Insights
+    // Nivel 3 
+    INVENTORY_MGMT // Chefros Gestão (Estoque)
+    CRM // Chefros CRM & Fidelidade
+    // Nivel 4
+    IA_AGENT // Chefros Agent IA
+    MARKETING // Chefros Marketing
+}

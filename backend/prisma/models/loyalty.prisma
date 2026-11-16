@@ -1,0 +1,36 @@
+// -----------------------------
+// Programa de Fidelidade
+// -----------------------------
+model LoyaltyProgram {
+    id         String                 @id @default(cuid())
+    businessId String
+    business   Business               @relation(fields: [businessId], references: [id])
+    name       String
+    type       LoyaltyType            @default(POINTS)
+    rules      Json // Regras em JSON
+    active     Boolean                @default(true)
+    members    LoyaltyProgramMember[]
+    createdAt  DateTime               @default(now())
+    updatedAt  DateTime               @updatedAt
+}
+
+enum LoyaltyType {
+    POINTS
+    STAMPS
+    TIER
+    CASHBACK
+}
+
+model LoyaltyProgramMember {
+    id         String         @id @default(cuid())
+    programId  String
+    program    LoyaltyProgram @relation(fields: [programId], references: [id])
+    customerId String         @unique
+    customer   Customer       @relation(fields: [customerId], references: [id])
+    points     Int            @default(0)
+    tier       String?
+    createdAt  DateTime       @default(now())
+    updatedAt  DateTime       @updatedAt
+
+    @@unique([programId, customerId])
+}

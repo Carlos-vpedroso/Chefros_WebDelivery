@@ -1,0 +1,70 @@
+model Invoice {
+    id             String       @id @default(cuid())
+    subscriptionId String
+    subscription   Subscription @relation(fields: [subscriptionId], references: [id])
+
+    stripeInvoiceId  String? @unique
+    hostedInvoiceUrl String?
+
+    amountDue  Decimal  @db.Decimal(10, 2)
+    amountPaid Decimal? @db.Decimal(10, 2)
+    currency   String   @default("BRL")
+
+    dueDate     DateTime?
+    periodStart DateTime?
+    periodEnd   DateTime?
+
+    status InvoiceStatus @default(PENDING)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    payments Payment[]
+
+    @@index([subscriptionId, status])
+}
+
+enum InvoiceStatus {
+    PENDING
+    PAID
+    FAILED
+    VOID
+}
+
+model Payment {
+    id        String   @id @default(cuid())
+    invoiceId String?
+    invoice   Invoice? @relation(fields: [invoiceId], references: [id])
+
+    subscriptionId String?
+    subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
+
+    provider   String // 'stripe'
+    providerId String? @unique // payment_intent id
+    amount     Decimal @db.Decimal(10, 2)
+    currency   String  @default("BRL")
+
+    status PaymentStatus
+
+    metadata Json?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([provider, providerId])
+}
+
+enum PaymentStatus {
+    PENDING
+    SUCCEEDED
+    FAILED
+    REFUNDED
+}
+
+enum PaymentMethod {
+    PIX
+    CREDIT_CARD
+    DEBIT_CARD
+    CASH
+    BANK_TRANSFER
+}

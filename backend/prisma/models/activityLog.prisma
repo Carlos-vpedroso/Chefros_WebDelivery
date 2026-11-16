@@ -1,0 +1,44 @@
+model ActivityLog {
+    id          String       @id @default(cuid())
+    businessId  String
+    business    Business     @relation(fields: [businessId], references: [id], onDelete: Cascade)
+    type        ActivityType
+    title       String
+    description String?
+    actorType   ActorType?
+
+    employeeId String?
+    employee   Employee? @relation(fields: [employeeId], references: [id])
+    customerId String?
+    customer   Customer? @relation(fields: [customerId], references: [id])
+    userId     String?
+    user       User?     @relation(fields: [userId], references: [id])
+
+    createdAt DateTime @default(now())
+
+    @@index([businessId, createdAt])
+}
+
+// Enums complementares
+enum ActivityType {
+    ORDER_CREATED  
+    ORDER_COMPLETED
+    ORDER_CANCELLED
+    PAYMENT_RECEIVED
+    PRODUCT_CREATED
+    SERVICE_CREATED
+    PRODUCT_DELETED
+    SERVICE_DELETED
+    APPOINTMENT_SCHEDULED
+    CUSTOMER_CREATED
+    EMPLOYEE_LOGIN
+    SUBSCRIPTION_UPDATED
+    SYSTEM_EVENT
+}
+
+enum ActorType {
+    EMPLOYEE
+    SYSTEM
+    CUSTOMER
+    USER
+}

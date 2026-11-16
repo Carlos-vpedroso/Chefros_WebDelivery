@@ -1,0 +1,28 @@
+model User {
+    id          String        @id @default(cuid())
+    name        String
+    email       String        @unique
+    password    String?
+    provider    Providers     @default(LOCAL)
+    createdAt   DateTime      @default(now())
+    updatedAt   DateTime      @updatedAt
+    orders      Ticket[] // pedidos feitos por esse cliente
+    addresses   UserAddress[]
+    activityLog ActivityLog[]
+}
+
+enum Providers {
+    GOOGLE
+    LOCAL
+}
+
+model UserAddress {
+    id        String   @id @default(cuid())
+    userId    String
+    user      User     @relation(fields: [userId], references: [id])
+    label     String?
+    address   Json
+    isDefault Boolean  @default(false)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}

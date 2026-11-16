@@ -1,0 +1,23 @@
+// -----------------------------
+// Gestão de Estoque
+// -----------------------------
+model InventoryTransaction {
+    id          String            @id @default(cuid())
+    productId   String
+    product     Product           @relation(fields: [productId], references: [id])
+    businessId  String
+    type        InventoryType
+    quantity    Int
+    note        String?
+    referenceId String? // ID do pedido, ajuste, etc
+    createdAt   DateTime          @default(now())
+
+    @@index([productId, createdAt])
+}
+
+enum InventoryType {
+    IN
+    OUT
+    ADJUSTMENT
+    TRANSFER
+}

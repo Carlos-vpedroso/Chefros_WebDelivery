@@ -1,0 +1,26 @@
+// -----------------------------
+// Colaboradores
+// -----------------------------
+model Employee {
+    id          String        @id @default(cuid())
+    name        String
+    email       String        @unique
+    password    String
+    businessId  String
+    business    Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+    tickets     Ticket[] // Comandas lançadas
+    activityLog ActivityLog[]
+    roleId      String
+    role        Role          @relation(fields: [roleId], references: [id], onDelete: Cascade)
+    createdAt   DateTime      @default(now())
+    updatedAt   DateTime      @updatedAt
+}
+
+model Role {
+    id          String     @id @default(cuid())
+    name        String
+    permissions Json
+    businessId  String
+    business    Business   @relation(fields: [businessId], references: [id], onDelete: Cascade)
+    employees   Employee[]
+}

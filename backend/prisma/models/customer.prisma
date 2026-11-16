@@ -1,0 +1,45 @@
+// -----------------------------
+// Clientes (CRM Multi-Segmento)
+// -----------------------------
+model Customer {
+    id          String                @id @default(cuid())
+    businessId  String
+    business    Business              @relation(fields: [businessId], references: [id])
+    name        String
+    email       String?
+    phone       String?
+    document    String? // CPF/CNPJ do cliente
+    segment     CustomerSegment?
+    loyalty     LoyaltyProgramMember?
+    notes       String?
+    createdAt   DateTime              @default(now())
+    updatedAt   DateTime              @updatedAt
+    deletedAt   DateTime?
+    addresses   CustomerAddress[]
+    orders      Ticket[]
+    activityLog ActivityLog[]
+
+    @@unique([businessId, email]) // Email único por empresa
+    @@unique([businessId, phone]) // Telefone único por empresa
+    @@index([businessId, segment])
+}
+
+enum CustomerSegment {
+    RETAIL
+    WHOLESALE
+    CORPORATE
+    FREQUENT
+    VIP
+}
+
+model CustomerAddress {
+    id         String    @id @default(cuid())
+    customerId String
+    customer   Customer  @relation(fields: [customerId], references: [id])
+    label      String? // "Casa", "Trabalho", "Loja"
+    address    Json
+    isDefault  Boolean   @default(false)
+    createdAt  DateTime  @default(now())
+    updatedAt  DateTime  @updatedAt
+    deletedAt  DateTime?
+}

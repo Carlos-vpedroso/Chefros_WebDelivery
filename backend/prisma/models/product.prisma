@@ -1,0 +1,35 @@
+// -----------------------------
+// Produtos e Serviços
+// -----------------------------
+model Product {
+    id            String   @id @default(cuid())
+    name          String
+    description   String?
+    price         Decimal  @db.Decimal(10, 2)
+    imageUrl      String?
+    imagePublicId String?
+    active        Boolean  @default(true)
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
+
+    businessId String
+    business   Business @relation(fields: [businessId], references: [id])
+    categoryId String
+    category   Category @relation(fields: [categoryId], references: [id])
+    unitId     String?
+    unit       Unit?    @relation(fields: [unitId], references: [id])
+
+    orderItems           OrderItem[]
+    InventoryTransaction InventoryTransaction[]
+    comboItem            ComboItem[]
+    promotionItem        PromotionItem[]
+
+    @@index([businessId, categoryId])
+}
+
+model Unit {
+    id       String    @id @default(cuid())
+    name     String
+    symbol   String // kg, g, L, ML, un...
+    products Product[]
+}

@@ -1,0 +1,29 @@
+model WorkDays {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  day    Int
+  active Boolean @default(false)
+
+  workHours WorkHours[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([businessId, day])
+}
+
+model WorkHours {
+  id         String   @id @default(cuid())
+  workDaysId String
+  workDays   WorkDays @relation(fields: [workDaysId], references: [id], onDelete: Cascade)
+
+  startTime String
+  endTime   String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([workDaysId])
+}

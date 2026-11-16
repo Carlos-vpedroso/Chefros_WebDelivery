@@ -1,0 +1,22 @@
+model Category {
+  id         String       @id @default(cuid())
+  businessId String
+  business   Business     @relation(fields: [businessId], references: [id])
+  name       String
+  type       CategoryType
+  parentId   String?
+  parent     Category?    @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  services   Service[]
+  products   Product[]
+  children   Category[]   @relation("CategoryHierarchy")
+
+  @@unique([businessId, name, type])
+  @@index([businessId, type])
+}
+
+enum CategoryType {
+  PRODUCT
+  SERVICE
+}

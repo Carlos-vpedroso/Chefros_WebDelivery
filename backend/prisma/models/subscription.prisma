@@ -1,0 +1,73 @@
+// -----------------------------
+// Planos e Assinaturas
+// -----------------------------
+model SubscriptionPlan {
+    id           Int          @id @default(autoincrement())
+    name         String // "Essencial", "Pro", "Premium"
+    slug         String       @unique
+    description  String?
+    price        Decimal      @db.Decimal(10, 2)
+    billingCycle BillingCycle @default(MONTHLY)
+    features     String[]
+    isActive     Boolean      @default(true)
+
+    stripePriceId   String // ID do stripe referente a Assinatura
+    stripeProductId String
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    modules       PlanModule[]
+    subscriptions Subscription[]
+
+    @@index([price, billingCycle, isActive])
+}
+
+enum BillingCycle {
+    MONTHLY
+    YEARLY
+}
+
+model PlanModule {
+    id         String           @id @default(cuid())
+    planId     Int
+    plan       SubscriptionPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+    moduleType ModuleType
+
+    @@unique([planId, moduleType])
+    @@index([planId])
+}
+
+model Subscription {
+    id         String   @id @default(cuid())
+    businessId String   @unique
+    business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+    planId Int
+    plan   SubscriptionPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+    status   SubscriptionStatus @default(PENDING_PAYMENT)
+    isActive Boolean            @default(false)
+
+    stripeSubscriptionId String?   @unique
+    currentPeriodStart   DateTime?
+    currentPeriodEnd     DateTime?
+
+    trialEndsAt DateTime?
+    canceledAt  DateTime?
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+    invoices    Invoice[]
+    payments    Payment[]
+
+    @@index([businessId, status])
+}
+
+enum SubscriptionStatus {
+    ACTIVE
+    CANCELED
+    PAST_DUE
+    UNPAID
+    INCOMPLETE
+    PENDING_PAYMENT
+}

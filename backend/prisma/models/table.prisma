@@ -1,0 +1,28 @@
+// -----------------------------
+// Mesas/Boxes/Salas (Multi-uso)
+// -----------------------------
+model Table {
+    id         String      @id @default(cuid())
+    businessId String
+    business   Business    @relation(fields: [businessId], references: [id])
+    name       String
+    capacity   Int?
+    status     TableStatus @default(AVAILABLE)
+    qrCodeUrl  String?
+
+    // Pedido ativo da mesa (1:1)  
+    ticketId String?  @unique
+    ticket   Ticket?  @relation("TableActiveTicket", fields: [ticketId], references: [id])
+    tickets  Ticket[] @relation("TicketAtTable") // histórico de pedidos da mesa
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([businessId, status])
+}
+
+enum TableStatus {
+    AVAILABLE
+    OCCUPIED
+    CLOSED
+}
